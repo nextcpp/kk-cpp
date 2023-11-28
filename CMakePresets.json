@@ -1,0 +1,194 @@
+﻿{
+    "version": 8,
+    "configurePresets": [
+        {
+            "name": "windows-base",
+            "hidden": true,
+            "generator": "Visual Studio 17 2022",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "installDir": "${sourceDir}/install/${presetName}",
+          "cacheVariables": {
+            "CMAKE_CXX_COMPILER": "cl.exe",
+            "CMAKE_TOOLCHAIN_FILE": {
+              "value": "$env{VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake",
+              "type": "FILEPATH"
+            },
+            "VCPKG_MANIFEST_MODE": "ON",
+            "VCPKG_TARGET_TRIPLET": "x64-windows"
+          },
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "x64-debug",
+            "displayName": "x64 Debug",
+            "inherits": "windows-base",
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "x64-release",
+            "displayName": "x64 Release",
+            "inherits": "windows-base",
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "linux-debug",
+            "displayName": "Linux Debug",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "installDir": "${sourceDir}/install/${presetName}",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            },
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Linux"
+            },
+            "vendor": {
+                "microsoft.com/VisualStudioRemoteSettings/CMake/1.0": {
+                    "sourceDir": "$env{HOME}/cross_cpp/$ms{projectDirName}"
+                }
+            }
+        }
+    ],
+
+  "buildPresets": [
+    {
+      "name": "x64-release",
+      "displayName": "WinRelease",
+      "configurePreset": "x64-release"
+    },
+    {
+      "name": "x64-debug",
+      "displayName": "WinDebug",
+      "configurePreset": "x64-debug"
+    }
+  ],
+
+  "testPresets": [
+    {
+      "name": "x64-release",
+      "configurePreset": "x64-release",
+      "configuration": "Release",
+      "output": {
+        "outputOnFailure": true,
+        "verbosity": "verbose"
+      },
+      "execution": {
+        "noTestsAction": "error",
+        "stopOnFailure": true
+      }
+    }
+  ],
+
+  "packagePresets": [
+    {
+      "name": "x64-release",
+      "configurePreset": "x64-release",
+      "generators": [
+        "TGZ"
+      ]
+    }
+  ],
+
+  "workflowPresets": [
+    {
+      "name": "conf-build-test-packaging",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "x64-release"
+        },
+        {
+          "type": "build",
+          "name": "x64-release"
+        },
+        {
+          "type": "test",
+          "name": "x64-release"
+        },
+        {
+          "type": "package",
+          "name": "x64-release"
+        }
+      ]
+    },
+    {
+      "name": "config-build-test",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "x64-release"
+        },
+        {
+          "type": "build",
+          "name": "x64-release"
+        },
+        {
+          "type": "test",
+          "name": "x64-release"
+        }
+      ]
+    },
+    {
+      "name": "config-build",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "x64-debug"
+        },
+        {
+          "type": "build",
+          "name": "x64-debug"
+        }
+      ]
+    },
+    {
+      "name": "config-build-rel",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "x64-release"
+        },
+        {
+          "type": "build",
+          "name": "x64-release"
+        }
+      ]
+    },
+    {
+      "name": "config",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "x64-debug"
+        }
+      ]
+    },
+    {
+      "name": "config-rel",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "x64-release"
+        }
+      ]
+    }
+  ]
+}
